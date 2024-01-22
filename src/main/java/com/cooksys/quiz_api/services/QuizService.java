@@ -11,4 +11,6 @@ public interface QuizService {
   List<QuizResponseDto> getAllQuizzes();
 
   QuizResponseDto createQuiz(QuizRequestDto quizRequestDto);
+
+//  QuizResponseDto deleteQuizById(Long id);
 }
