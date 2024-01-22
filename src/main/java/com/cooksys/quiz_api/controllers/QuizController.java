@@ -2,6 +2,7 @@ package com.cooksys.quiz_api.controllers;
 
 import java.util.List;
 
+import com.cooksys.quiz_api.dtos.QuestionResponseDto;
 import com.cooksys.quiz_api.dtos.QuizRequestDto;
 import com.cooksys.quiz_api.dtos.QuizResponseDto;
 import com.cooksys.quiz_api.services.QuizService;
@@ -36,15 +37,19 @@ public class QuizController {
     return quizService.deleteQuizById(id);
   }
 
-//  PATCH quiz/{id}/rename/{newName} Rename the specified quiz using the new name given
-//
-//  Returns the renamed Quiz
   @PatchMapping("/{id}/rename/{newName}")
   public QuizResponseDto renameQuiz(
           @PathVariable Long id,
           @PathVariable String newName
   ) {
     return quizService.renameQuiz(id, newName);
+  }
+
+  @GetMapping("/{id}/random")
+  public QuestionResponseDto randomQuestion(
+          @PathVariable Long id
+  ) {
+    return quizService.randomQuestion(id);
   }
 
 }

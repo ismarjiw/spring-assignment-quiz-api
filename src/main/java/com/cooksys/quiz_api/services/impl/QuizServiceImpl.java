@@ -1,9 +1,11 @@
 package com.cooksys.quiz_api.services.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.cooksys.quiz_api.dtos.QuestionResponseDto;
 import com.cooksys.quiz_api.dtos.QuizRequestDto;
 import com.cooksys.quiz_api.dtos.QuizResponseDto;
 import com.cooksys.quiz_api.entities.Answer;
@@ -33,7 +35,6 @@ public class QuizServiceImpl implements QuizService {
   private final QuestionMapper questionMapper;
   private final QuestionRepository questionRepository;
 
-  private final AnswerMapper answerMapper;
   private final AnswerRepository answerRepository;
 
   @Override
@@ -94,10 +95,28 @@ public class QuizServiceImpl implements QuizService {
           renamedQuiz.setName(newName);
           return quizMapper.entityToDto(renamedQuiz);
       } else {
-        throw new NoSuchElementException("Quiz not found with ID: " + id);
+          throw new NoSuchElementException("Quiz not found with ID: " + id);
       }
 
   }
 
+  @Override
+  public QuestionResponseDto randomQuestion(Long id) {
+    Optional<Quiz> optionalQuiz = quizRepository.findById(id);
 
-}
+    if (optionalQuiz.isPresent()) {
+      Quiz selectedQuiz = optionalQuiz.get();
+      List<Question> questions = selectedQuiz.getQuestions();
+
+      if (!questions.isEmpty()) {
+        int randomIndex = (int) (Math.random() * questions.size());
+        Question randomQuestion = questions.get(randomIndex);
+        return questionMapper.entityToDto(randomQuestion);
+      }
+    } else {
+      throw new NoSuchElementException("Quiz not found with ID: " + id);
+    }
+      return null;
+    }
+
+  }
