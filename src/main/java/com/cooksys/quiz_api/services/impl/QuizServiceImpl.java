@@ -47,8 +47,8 @@ public class QuizServiceImpl implements QuizService {
     Quiz quizToSave = quizMapper.requestDtoToEntity(quizRequestDto);
     Quiz savedQuiz = quizRepository.saveAndFlush(quizToSave);
 
-    for (Question q : quizToSave.getQuestions()) {
-      q.setQuiz(quizToSave);
+    for (Question q : savedQuiz.getQuestions()) {
+      q.setQuiz(savedQuiz);
       questionRepository.saveAndFlush(q);
 
       for (Answer a : q.getAnswers()) {
@@ -60,20 +60,31 @@ public class QuizServiceImpl implements QuizService {
     return quizMapper.entityToDto(savedQuiz);
   }
 
-//  @Override
-//  public QuizResponseDto deleteQuizById(Long id) {
-//    Optional<Quiz> quizToDelete = quizRepository.findById(id);
-//
-//    if (quizToDelete.isPresent()) {
-//      Quiz deletedQuiz = quizToDelete.get();
-//
-//      quizRepository.deleteById(id);
-//
-//      return quizMapper.entityToDto(deletedQuiz);
-//    } else {
-//      throw new NoSuchElementException("Quiz not found with ID: " + id);
-//    }
-//  }
+  @Override
+  public QuizResponseDto deleteQuizById(Long id) {
+    Optional<Quiz> quizToDelete = quizRepository.findById(id);
+
+    if (quizToDelete.isPresent()) {
+      Quiz deletedQuiz = quizToDelete.get();
+
+      for (Question q : deletedQuiz.getQuestions()) {
+        for (Answer a : q.getAnswers()) {
+          answerRepository.deleteById(a.getId());
+        }
+      }
+
+      for (Question q : deletedQuiz.getQuestions()) {
+        questionRepository.deleteById(q.getId());
+      }
+
+      quizRepository.deleteById(id);
+
+      return quizMapper.entityToDto(deletedQuiz);
+    } else {
+      throw new NoSuchElementException("Quiz not found with ID: " + id);
+    }
+  }
+
 
 
 
