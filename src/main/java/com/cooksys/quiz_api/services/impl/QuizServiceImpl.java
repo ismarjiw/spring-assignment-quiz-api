@@ -85,7 +85,19 @@ public class QuizServiceImpl implements QuizService {
     }
   }
 
+  @Override
+  public QuizResponseDto renameQuiz(Long id, String newName) {
+      Optional<Quiz> optionalQuiz = quizRepository.findById(id);
 
+      if (optionalQuiz.isPresent()) {
+          Quiz renamedQuiz = optionalQuiz.get();
+          renamedQuiz.setName(newName);
+          return quizMapper.entityToDto(renamedQuiz);
+      } else {
+        throw new NoSuchElementException("Quiz not found with ID: " + id);
+      }
+
+  }
 
 
 }

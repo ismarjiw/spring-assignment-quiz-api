@@ -36,4 +36,15 @@ public class QuizController {
     return quizService.deleteQuizById(id);
   }
 
+//  PATCH quiz/{id}/rename/{newName} Rename the specified quiz using the new name given
+//
+//  Returns the renamed Quiz
+  @PatchMapping("/{id}/rename/{newName}")
+  public QuizResponseDto renameQuiz(
+          @PathVariable Long id,
+          @PathVariable String newName
+  ) {
+    return quizService.renameQuiz(id, newName);
+  }
+
 }
