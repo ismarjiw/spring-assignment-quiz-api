@@ -5,6 +5,7 @@ import java.util.List;
 import com.cooksys.quiz_api.dtos.QuestionResponseDto;
 import com.cooksys.quiz_api.dtos.QuizRequestDto;
 import com.cooksys.quiz_api.dtos.QuizResponseDto;
+import com.cooksys.quiz_api.entities.Question;
 import com.cooksys.quiz_api.services.QuizService;
 
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,17 @@ public class QuizController {
           @PathVariable Long id
   ) {
     return quizService.randomQuestion(id);
+  }
+
+//  PATCH quiz/{id}/add Adds a question to the specified quiz
+//  Receives a Question
+//  Returns the modified Quiz
+  @PatchMapping("/{id}/add")
+  public QuizResponseDto addQuestion(
+          @PathVariable Long id,
+          @RequestBody Question question
+  ) {
+    return quizService.addQuestion(id, question);
   }
 
 }

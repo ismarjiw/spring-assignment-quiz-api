@@ -119,4 +119,22 @@ public class QuizServiceImpl implements QuizService {
       return null;
     }
 
+  @Override
+  public QuizResponseDto addQuestion(Long id, Question question) {
+    Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+
+    if (optionalQuiz.isPresent()) {
+      Quiz selectedQuiz = optionalQuiz.get();
+
+      question.setQuiz(selectedQuiz);
+      selectedQuiz.getQuestions().add(question);
+
+      quizRepository.saveAndFlush(selectedQuiz);
+
+      return quizMapper.entityToDto(selectedQuiz);
+  } else {
+      throw new NoSuchElementException("Quiz not found with ID: " + id);
+    }
   }
+
+}
