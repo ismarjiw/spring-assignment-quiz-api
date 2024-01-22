@@ -53,9 +53,6 @@ public class QuizController {
     return quizService.randomQuestion(id);
   }
 
-//  PATCH quiz/{id}/add Adds a question to the specified quiz
-//  Receives a Question
-//  Returns the modified Quiz
   @PatchMapping("/{id}/add")
   public QuizResponseDto addQuestion(
           @PathVariable Long id,
@@ -64,4 +61,16 @@ public class QuizController {
     return quizService.addQuestion(id, question);
   }
 
+//  DELETE quiz/{id}/delete/{questionID}`
+//  Deletes the specified question from the specified quiz
+//    - Returns the deleted `Question`
+
+  @DeleteMapping("/{id}/delete/{questionID}")
+  public QuestionResponseDto deleteQuestionFromQuiz(
+          @PathVariable Long id,
+          @PathVariable Long questionID
+  ) {
+
+    return quizService.deleteQuestionFromQuiz(id, questionID);
+  }
 }

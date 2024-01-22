@@ -142,4 +142,26 @@ public class QuizServiceImpl implements QuizService {
     }
   }
 
+  @Override
+  public QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID) {
+    Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+    Optional<Question> optionalQuestion = questionRepository.findById(questionID);
+
+    if (optionalQuiz.isPresent() && optionalQuestion.isPresent()) {
+      Quiz selectedQuiz = optionalQuiz.get();
+      Question selectedQuestion = optionalQuestion.get();
+
+      for (Answer a : selectedQuestion.getAnswers()) {
+        answerRepository.deleteById(a.getId());
+      }
+      questionRepository.deleteById(questionID);
+
+      quizRepository.saveAndFlush(selectedQuiz);
+
+      return questionMapper.entityToDto(selectedQuestion);
+    } else {
+        throw new NoSuchElementException("Quiz not found with ID: " + id + "or Question not found with ID: " + questionID);
+    }
+  }
+
 }

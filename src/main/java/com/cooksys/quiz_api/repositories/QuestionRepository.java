@@ -14,7 +14,5 @@ import java.util.Optional;
 // without using this interface.
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    void deleteByQuiz(Quiz quiz);
-
 
 }

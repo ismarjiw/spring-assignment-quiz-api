@@ -14,7 +14,5 @@ import java.util.List;
 // without using this interface.
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
-    void deleteByQuestionIn(List<Question> questions);
-
 
 }
