@@ -127,7 +127,12 @@ public class QuizServiceImpl implements QuizService {
       Quiz selectedQuiz = optionalQuiz.get();
 
       question.setQuiz(selectedQuiz);
-      selectedQuiz.getQuestions().add(question);
+      questionRepository.saveAndFlush(question);
+
+      for (Answer a : question.getAnswers()) {
+        a.setQuestion(question);
+        answerRepository.saveAndFlush(a);
+      }
 
       quizRepository.saveAndFlush(selectedQuiz);
 
