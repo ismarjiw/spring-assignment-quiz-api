@@ -10,10 +10,10 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AnswerMapper {
 
-  Answer requestDtoToEntity(AnswerRequestDto answerRequestDto);
+    Answer requestDtoToEntity(AnswerRequestDto answerRequestDto);
 
-  AnswerResponseDto entityToDto(Answer entity);
+    AnswerResponseDto entityToDto(Answer entity);
 
-  List<AnswerResponseDto> entitiesToDtos(List<Answer> entities);
+    List<AnswerResponseDto> entitiesToDtos(List<Answer> entities);
 
 }

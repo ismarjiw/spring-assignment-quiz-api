@@ -7,12 +7,12 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = { QuestionMapper.class })
+@Mapper(componentModel = "spring", uses = {QuestionMapper.class})
 public interface QuizMapper {
 
-  Quiz requestDtoToEntity(QuizRequestDto quizRequestDto);
+    Quiz requestDtoToEntity(QuizRequestDto quizRequestDto);
 
-  QuizResponseDto entityToDto(Quiz entity);
+    QuizResponseDto entityToDto(Quiz entity);
 
-  List<QuizResponseDto> entitiesToDtos(List<Quiz> entities);
+    List<QuizResponseDto> entitiesToDtos(List<Quiz> entities);
 }

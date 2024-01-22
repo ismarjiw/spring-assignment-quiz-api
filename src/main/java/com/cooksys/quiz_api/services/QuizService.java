@@ -1,26 +1,25 @@
 package com.cooksys.quiz_api.services;
 
-import java.util.List;
-
 import com.cooksys.quiz_api.dtos.QuestionResponseDto;
 import com.cooksys.quiz_api.dtos.QuizRequestDto;
 import com.cooksys.quiz_api.dtos.QuizResponseDto;
 import com.cooksys.quiz_api.entities.Question;
-import com.cooksys.quiz_api.entities.Quiz;
+
+import java.util.List;
 
 public interface QuizService {
 
-  List<QuizResponseDto> getAllQuizzes();
+    List<QuizResponseDto> getAllQuizzes();
 
-  QuizResponseDto createQuiz(QuizRequestDto quizRequestDto);
+    QuizResponseDto createQuiz(QuizRequestDto quizRequestDto);
 
-  QuizResponseDto deleteQuizById(Long id);
+    QuizResponseDto deleteQuizById(Long id);
 
-  QuizResponseDto renameQuiz(Long id, String newName);
+    QuizResponseDto renameQuiz(Long id, String newName);
 
-  QuestionResponseDto randomQuestion(Long id);
+    QuestionResponseDto randomQuestion(Long id);
 
-  QuizResponseDto addQuestion(Long id, Question question);
+    QuizResponseDto addQuestion(Long id, Question question);
 
-  QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID);
+    QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID);
 }
