@@ -31,28 +31,34 @@ public class QuizServiceImpl implements QuizService {
 
     private final AnswerRepository answerRepository;
 
+    String QUIZ_NOT_FOUND_MESSAGE = "Quiz not found with ID: ";
+    String QUESTION_NOT_FOUND_MESSAGE = "Question not found with ID: ";
+
     @Override
     public List<QuizResponseDto> getAllQuizzes() {
-
         return quizMapper.entitiesToDtos(quizRepository.findAll());
     }
 
     @Override
     public QuizResponseDto createQuiz(QuizRequestDto quizRequestDto) {
-        Quiz quizToSave = quizMapper.requestDtoToEntity(quizRequestDto);
-        Quiz savedQuiz = quizRepository.saveAndFlush(quizToSave);
+        try {
+            Quiz quizToSave = quizMapper.requestDtoToEntity(quizRequestDto);
+            Quiz savedQuiz = quizRepository.saveAndFlush(quizToSave);
 
-        for (Question q : savedQuiz.getQuestions()) {
-            q.setQuiz(savedQuiz);
-            questionRepository.saveAndFlush(q);
+            for (Question q : savedQuiz.getQuestions()) {
+                q.setQuiz(savedQuiz);
+                questionRepository.saveAndFlush(q);
 
-            for (Answer a : q.getAnswers()) {
-                a.setQuestion(q);
-                answerRepository.saveAndFlush(a);
+                for (Answer a : q.getAnswers()) {
+                    a.setQuestion(q);
+                    answerRepository.saveAndFlush(a);
+                }
             }
-        }
 
-        return quizMapper.entityToDto(savedQuiz);
+            return quizMapper.entityToDto(savedQuiz);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating quiz");
+        }
     }
 
     @Override
@@ -62,99 +68,119 @@ public class QuizServiceImpl implements QuizService {
         if (quizToDelete.isPresent()) {
             Quiz deletedQuiz = quizToDelete.get();
 
-            for (Question q : deletedQuiz.getQuestions()) {
-                for (Answer a : q.getAnswers()) {
-                    answerRepository.deleteById(a.getId());
+            try {
+                for (Question q : deletedQuiz.getQuestions()) {
+                    for (Answer a : q.getAnswers()) {
+                        answerRepository.deleteById(a.getId());
+                    }
                 }
+
+                for (Question q : deletedQuiz.getQuestions()) {
+                    questionRepository.deleteById(q.getId());
+                }
+
+                quizRepository.deleteById(id);
+
+                return quizMapper.entityToDto(deletedQuiz);
+            } catch (Exception e) {
+                throw new RuntimeException("Error deleting quiz");
             }
-
-            for (Question q : deletedQuiz.getQuestions()) {
-                questionRepository.deleteById(q.getId());
-            }
-
-            quizRepository.deleteById(id);
-
-            return quizMapper.entityToDto(deletedQuiz);
         } else {
-            throw new NoSuchElementException("Quiz not found with ID: " + id);
+            throw new NoSuchElementException(QUIZ_NOT_FOUND_MESSAGE + id);
         }
     }
 
     @Override
     public QuizResponseDto renameQuiz(Long id, String newName) {
-        Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+        try {
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
 
-        if (optionalQuiz.isPresent()) {
-            Quiz renamedQuiz = optionalQuiz.get();
-            renamedQuiz.setName(newName);
-            return quizMapper.entityToDto(renamedQuiz);
-        } else {
-            throw new NoSuchElementException("Quiz not found with ID: " + id);
+            if (optionalQuiz.isPresent()) {
+                Quiz renamedQuiz = optionalQuiz.get();
+                renamedQuiz.setName(newName);
+                return quizMapper.entityToDto(renamedQuiz);
+            } else {
+                throw new NoSuchElementException(QUIZ_NOT_FOUND_MESSAGE + id);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error renaming quiz");
         }
-
     }
 
     @Override
     public QuestionResponseDto randomQuestion(Long id) {
-        Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+        try {
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
 
-        if (optionalQuiz.isPresent()) {
-            Quiz selectedQuiz = optionalQuiz.get();
-            List<Question> questions = selectedQuiz.getQuestions();
+            if (optionalQuiz.isPresent()) {
+                Quiz selectedQuiz = optionalQuiz.get();
+                List<Question> questions = selectedQuiz.getQuestions();
 
-            if (!questions.isEmpty()) {
-                int randomIndex = (int) (Math.random() * questions.size());
-                Question randomQuestion = questions.get(randomIndex);
-                return questionMapper.entityToDto(randomQuestion);
+                if (!questions.isEmpty()) {
+                    int randomIndex = (int) (Math.random() * questions.size());
+                    Question randomQuestion = questions.get(randomIndex);
+                    return questionMapper.entityToDto(randomQuestion);
+                } else {
+                    throw new IllegalStateException("Quiz with ID " + id + " has no questions");
+                }
+            } else {
+                throw new NoSuchElementException(QUIZ_NOT_FOUND_MESSAGE + id);
             }
-        } else {
-            throw new NoSuchElementException("Quiz not found with ID: " + id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error retrieving random question");
         }
-        return null;
     }
 
     @Override
     public QuizResponseDto addQuestion(Long id, Question question) {
-        Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+        try {
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
 
-        if (optionalQuiz.isPresent()) {
-            Quiz selectedQuiz = optionalQuiz.get();
+            if (optionalQuiz.isPresent()) {
+                Quiz selectedQuiz = optionalQuiz.get();
 
-            question.setQuiz(selectedQuiz);
-            questionRepository.saveAndFlush(question);
+                question.setQuiz(selectedQuiz);
+                questionRepository.saveAndFlush(question);
 
-            for (Answer a : question.getAnswers()) {
-                a.setQuestion(question);
-                answerRepository.saveAndFlush(a);
+                for (Answer a : question.getAnswers()) {
+                    a.setQuestion(question);
+                    answerRepository.saveAndFlush(a);
+                }
+
+                quizRepository.saveAndFlush(selectedQuiz);
+
+                return quizMapper.entityToDto(selectedQuiz);
+            } else {
+                throw new NoSuchElementException(QUIZ_NOT_FOUND_MESSAGE + id);
             }
-
-            quizRepository.saveAndFlush(selectedQuiz);
-
-            return quizMapper.entityToDto(selectedQuiz);
-        } else {
-            throw new NoSuchElementException("Quiz not found with ID: " + id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error adding question to quiz");
         }
     }
 
     @Override
     public QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID) {
-        Optional<Quiz> optionalQuiz = quizRepository.findById(id);
-        Optional<Question> optionalQuestion = questionRepository.findById(questionID);
+        try {
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            Optional<Question> optionalQuestion = questionRepository.findById(questionID);
 
-        if (optionalQuiz.isPresent() && optionalQuestion.isPresent()) {
-            Quiz selectedQuiz = optionalQuiz.get();
-            Question selectedQuestion = optionalQuestion.get();
+            if (optionalQuiz.isPresent() && optionalQuestion.isPresent()) {
+                Quiz selectedQuiz = optionalQuiz.get();
+                Question selectedQuestion = optionalQuestion.get();
 
-            for (Answer a : selectedQuestion.getAnswers()) {
-                answerRepository.deleteById(a.getId());
+                for (Answer a : selectedQuestion.getAnswers()) {
+                    answerRepository.deleteById(a.getId());
+                }
+                questionRepository.deleteById(questionID);
+
+                quizRepository.saveAndFlush(selectedQuiz);
+
+                return questionMapper.entityToDto(selectedQuestion);
+            } else {
+                throw new NoSuchElementException(QUIZ_NOT_FOUND_MESSAGE + id + " or " + QUESTION_NOT_FOUND_MESSAGE + questionID);
             }
-            questionRepository.deleteById(questionID);
-
-            quizRepository.saveAndFlush(selectedQuiz);
-
-            return questionMapper.entityToDto(selectedQuestion);
-        } else {
-            throw new NoSuchElementException("Quiz not found with ID: " + id + "or Question not found with ID: " + questionID);
+        } catch (Exception e) {
+            throw new RuntimeException("Error deleting question from quiz");
         }
     }
 
